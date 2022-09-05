@@ -1,0 +1,18 @@
+N: 21000 # user to set to number of codewords (this is a small value for demo purposes, 1000000 is feasible)
+M: 28 # user to set to length of a codeword (nt)
+filename_1: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_subset1" # user set to output file path for the first subset of barcodes
+filename_2: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_subset2" # user set to output file path for the second subset of barcodes
+picklefilename: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_subset1.pkl" # user to set (produces file length ~64*M*N). Only a pickle file of the first subset is saved, because only the first subset of barcodes is used for demultiplexing
+fac: 6 # (N*2)*fac is the total number of random barcodes generated before filtering
+homomax: 3 # max length of homopolymers
+gmax: 0.27 # max npercentage of G content
+cyclemax: 2.1 # max number of synthesis cycles
+Q: 1000000 # user to set to desired number of simulated reads (10000 is a small value for demo purposes)
+nave: 4. # user to set (average Poisson number of reads from each randomly selected codeword)
+srate: 0.032 # substitutions error rate
+irate: 0.023 # insertion error rate
+drate: 0.15 # deletion error rate-user to set (these are *very* large error rates)
+readsfilename: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_sim_reads_subset1" # user set to output file path of simulated reads with errors
+answersfilename: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_sim_answers_subset1" # user set to output file path of file qith the correct answers
+Nthresh: 6 # user set to Levenshtein score greater than which is called an erasure, increasing it increase the recall and decreases precision
+best_path: "/data/gent/446/vsc44685/RandomBarcodes/outputs/barcodes_21K_28_T6_best_subset1.txt"  #path to save the file with the barcode assignments.
