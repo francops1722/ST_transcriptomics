@@ -1,8 +1,8 @@
 #!/bin/bash
 # Create the output folder if it doesn't exist
-mkdir -p "./modules"
+mkdir -p "./containers"
 # Define the target folder for Singularity images
-output_folder="./modules"
+output_folder="./containers"
 # List of Docker images to download
 docker_images=(
     "docker://quay.io/biocontainers/cutadapt:4.5--py39hf95cd2a_0"
