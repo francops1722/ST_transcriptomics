@@ -7,6 +7,7 @@ output_folder="./containers"
 docker_images=(
     "docker://quay.io/biocontainers/cutadapt:4.5--py39hf95cd2a_0"
     "docker://quay.io/biocontainers/fastqc:0.11.9--0"
+    "docker://ewels/multiqc:latest"
     "docker://quay.io/biocontainers/subread:2.0.1--hed695b0_0"
     "docker://quay.io/biocontainers/samtools:1.2--0"
     "docker://parisepigenetics/umitools:latest"
