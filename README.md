@@ -3,8 +3,9 @@ pipeline for the analysis of Spatial Transcriptomics data generated from our cus
 
 ## Requirements
 1. singularity/apptainer
-2. Pytorch
-3. Nvidia Cuda
+2. Nextflow
+3. Pytorch
+4. Nvidia Cuda
 
 ## Instalation
 
