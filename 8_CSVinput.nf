@@ -13,7 +13,7 @@ include {index_bam as index} from "./modules/Star"
 include {index_bam_FC as index2} from "./modules/FeatureCounts"
 include {sort_bam_FC as sort_bam} from "./modules/FeatureCounts"
 include {FeatureCounts_BAM as FeatureCounts} from "./modules/FeatureCounts"
-include {UMI_count as count} from "./modules/FeatureCounts"
+include {UMI_count as count} from "./modules/UMItools"
 
 
 log.info """
