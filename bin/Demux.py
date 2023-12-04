@@ -332,13 +332,12 @@ Read2_out = Outfile + "_demux_R2.fastq.gz"
 with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
     for r1, r2 in reader:
         read = r1.sequence.lower().replace("n","")
-        if len(read) == 37:
-            seq = encode(read[0:36])
-        else:
-            seq = encode(read[0:36])
+        if len(read) >= M:
+            continue
+        seq = encode(read[0:M])
         barcode = bar_demux(seq)
         if barcode != "erasure":
-            r1 = r1[36:]
+            r1 = r1[M:]
             #r2 = r2[36:]
             split_name = r2.name.split("_")
             #split_name = r2.name
