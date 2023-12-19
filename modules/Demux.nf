@@ -2,7 +2,7 @@
 
 process Decode {
     publishDir "${params.outdir}/demux", mode: 'copy', overwrite: true 
-    label 'high'
+    //label 'high'
     module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
     tag "${sample}" 
     

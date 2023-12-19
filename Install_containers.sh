@@ -10,8 +10,8 @@ docker_images=(
     "docker://ewels/multiqc:latest"
     "docker://quay.io/biocontainers/subread:2.0.1--hed695b0_0"
     "docker://quay.io/biocontainers/samtools:1.2--0"
-    "docker://parisepigenetics/umitools:latest"
-    "docker://quay.io/biocontainers/seqtk:1.4--he4a0461_1"
+    "docker://quay.io/biocontainers/umi_tools:1.1.4--py310h4b81fae_2"
+    "docker://quay.io/biocontainers/seqtk:1.3--hed695b0_2"
     "docker://quay.io/biocontainers/star:2.7.8a--0"
 )
 

@@ -21,6 +21,26 @@ process Star_Align_R2 {
     """
 }
 
+process Star_Align_R2v2 {
+    
+    container './containers/star:2.7.8a--0.sif'
+    publishDir "${params.outdir}/Star", mode: 'copy', overwrite: true 
+    tag "${sample}"
+    //label "med"
+    
+    input:
+    tuple val(sample), path(se_reads)
+    path genome
+    
+    output:
+    path("*_Log.final.out"), emit: log_files
+    tuple val(sample), path("*.bam"), emit: align_bam
+
+    script:
+    """
+    STAR --readFilesCommand zcat --genomeDir ${genome} --readFilesIn ${se_reads} --outFilterType BySJout --outSAMunmapped Within --outFilterMultimapNmax 200 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.6 --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 --limitOutSJcollapsed 5000000 --limitIObufferSize 200000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix ${sample}_ --limitBAMsortRAM 2000000000
+    """
+}
 
 //STAR --readFilesCommand zcat --runThreadN 2 --genomeDir ${genome} --readFilesIn ${se_reads} --outFilterType BySJout --outSAMunmapped Within --outFilterMultimapNmax 200 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 --outFilterScoreMinOverLread 0.5 --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 --limitOutSJcollapsed 5000000 --limitIObufferSize 200000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix ${sample}_ --limitBAMsortRAM 2000000000
 process index_bam {

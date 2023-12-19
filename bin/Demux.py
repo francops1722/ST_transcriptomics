@@ -333,7 +333,7 @@ with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="
     for r1, r2 in reader:
         read = r1.sequence.lower().replace("n","")
         if len(read) >= M:
-            continue
+            pass
         seq = encode(read[0:M])
         barcode = bar_demux(seq)
         if barcode != "erasure":

@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 process UMI_extract {
-    container './containers/umitools:latest.sif'
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
     publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
@@ -29,7 +29,7 @@ process UMI_extract {
 
 process UMI_count {
 
-    container './containers/umitools:latest.sif'
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
     publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true 
     tag "${sample}"
     
@@ -49,7 +49,7 @@ process UMI_count {
 
 process UMI_dedup_basic {
 
-    container './containers/umitools:latest.sif'
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
     publishDir "${params.outdir}/UMI_dedup", mode: 'copy', overwrite: true 
     tag "${sample}"
     
