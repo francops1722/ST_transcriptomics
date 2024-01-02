@@ -20,7 +20,7 @@ process FeatureCounts_BAM {
 
 process index_bam_FC {
 
-    container './containers/samtools:1.2--0.sif'
+    container './containers/samtools:1.16.sif'
     publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true
     tag "${sample}"
     
@@ -38,13 +38,12 @@ process index_bam_FC {
 
 process sort_bam_FC {
 
-    container './containers/samtools:1.2--0.sif'
+    container './containers/samtools:1.16.sif'
     publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true
     tag "${sample}"
     
     input:
     tuple val(sample), path(bam_file)
-    
     
     output:
     tuple val(sample), path("*.bam"), emit: sorted_bam

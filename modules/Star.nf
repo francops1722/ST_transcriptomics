@@ -45,7 +45,7 @@ process Star_Align_R2v2 {
 //STAR --readFilesCommand zcat --runThreadN 2 --genomeDir ${genome} --readFilesIn ${se_reads} --outFilterType BySJout --outSAMunmapped Within --outFilterMultimapNmax 200 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 --outFilterMismatchNmax 999 --outFilterMismatchNoverLmax 0.1 --outFilterScoreMinOverLread 0.5 --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 --limitOutSJcollapsed 5000000 --limitIObufferSize 200000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix ${sample}_ --limitBAMsortRAM 2000000000
 process index_bam {
 
-    container './containers/samtools:1.2--0.sif'
+    container './containers/samtools:1.16.sif'
     publishDir "${params.outdir}/Star", mode: 'copy', overwrite: true
     tag "${sample}"
     
@@ -63,7 +63,7 @@ process index_bam {
 
 process sort_bam {
 
-    container './containers/samtools:1.2--0.sif'
+    container './containers/samtools:1.16.sif'
     publishDir "${params.outdir}/Star", mode: 'copy', overwrite: true
     tag "${sample}"
     
