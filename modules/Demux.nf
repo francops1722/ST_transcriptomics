@@ -15,8 +15,6 @@ process Decode {
     output:
     tuple val(sample), file("*.fastq.gz")
     
-    //conda 'environment.yaml'
-    
     script:
     """
     Demux.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${N} -M ${params.M} -B ${B} -P ${params.P} --Ntriage ${params.Ntriage} --Nthresh ${Nthr} --out-prefix ${sample} 

@@ -1,4 +1,23 @@
 
+process FeatureCounts {
+    container './containers/subread:2.0.1--hed695b0_0.sif'
+    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    
+    input:
+    tuple val(sample), path(bam_file)
+    path gtf_file
+    path idx
+
+    output:
+    path("*.count"), emit: counts
+    path("*.summary"), emit: logs
+
+    script:
+    """
+    featureCounts -s 1 -T 10 -t exon -g gene_id -a ${gtf_file}  -o ${sample}_uniquev5.count ${bam_file} 
+    """
+}
+
 process FeatureCounts_BAM {
     container './containers/subread:2.0.1--hed695b0_0.sif'
     publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
@@ -69,5 +88,21 @@ process merge_featureCounts {
     """
 }
 
+process merge_Counts {
+    publishDir "${params.outdir}/Counts", mode: 'copy'
+    //module 'pandas/1.1.2-foss-2020a-Python-3.8.2' only use when working in cluster joltik 
+    module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
 
+    input:
+    file input_files 
+
+    output:
+    file 'gene_counts.csv'
+    file 'summary_barcodes.csv'
+
+    script:
+    """
+    Counts_merge.py -i $input_files -Bar summary_barcodes.csv -Count gene_counts.csv
+    """
+}
 

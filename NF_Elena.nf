@@ -18,6 +18,7 @@ include {index_bam_FC as index2} from "./modules/FeatureCounts"
 include {sort_bam_FC as sort_bam} from "./modules/FeatureCounts"
 include {UMI_count as count} from "./modules/UMItools"
 include {FeatureCounts_BAM as FeatureCounts} from "./modules/FeatureCounts"
+include {merge_Counts as merge} from "./modules/FeatureCounts"
 
 
 log.info """\
@@ -81,6 +82,8 @@ workflow {
     index2(sort_bam.out.sorted_bam)
     //Counting molecules
     count(sort_bam.out.sorted_bam, index2.out)
+    input_files = count.out.collect()
+    merge(input_files)
 }
 
 workflow.onComplete {

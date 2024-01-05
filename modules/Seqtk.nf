@@ -37,3 +37,20 @@ process Subsample_Seqtk_or {
     """
 }
 
+
+process Subsample_Seqtk_SE {
+    container './containers/seqtk:1.3--hed695b0_2.sif'
+    publishDir "${params.outdir}/Subsampled", mode: 'copy', overwrite: true
+
+    input:
+    path(se_reads)
+
+    output:
+    file('*_subs.fastq.gz')
+
+    script:
+    """
+    seqtk sample -s 100  ${se_reads} ${params.Subs} | gzip > _subs.fastq.gz
+    """
+}
+
