@@ -1,12 +1,13 @@
 #!/usr/bin/env nextflow
 
 process Decode {
-    publishDir "${params.outdir}/demux", mode: 'copy', overwrite: true 
-    label 'high'
+    publishDir "${params.outdir}/${index_step}_demux", mode: 'copy', overwrite: true 
+    //label 'high'
     module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
     tag "${sample}" 
     
     input:
+    val (index_step)
     path (B)
     val (N)
     val (Nthr)
@@ -14,8 +15,6 @@ process Decode {
     
     output:
     tuple val(sample), file("*.fastq.gz")
-    
-    //conda 'environment.yaml'
     
     script:
     """
