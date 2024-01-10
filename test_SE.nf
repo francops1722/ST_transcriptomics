@@ -34,5 +34,3 @@ workflow {
     input_files = FC.out.counts.collect()
     merge_FC(input_files)
 }
-
-

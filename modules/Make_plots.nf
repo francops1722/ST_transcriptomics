@@ -13,5 +13,6 @@ process plot_reads {
     """
     CountReads.r ${files} 
     MakeMap.r ${files} 
+    MakeCountPlot.r ${files} 
     """
     }
