@@ -3,10 +3,11 @@
 process CUTADAPT_Trim1_or {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_1", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_1", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val(index_step)
     tuple val(sample), path(pe_reads)
 
     output:
@@ -21,10 +22,11 @@ process CUTADAPT_Trim1_or {
 process CUTADAPT_Trim4 {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_4", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_4", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val(index_step)
     tuple val(sample), path(pe_reads)
     
 
@@ -40,10 +42,11 @@ process CUTADAPT_Trim4 {
 process CUTADAPT_Trim4_1 {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_4", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_4", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val (index_step)
     tuple val(sample), path(pe_reads)
     
 
@@ -78,10 +81,11 @@ process CUTADAPT_Trim5 {
 process CUTADAPT_oligodT {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_1", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_1", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val(index_step)
     val (sample)
     tuple path(r1), path(r2)
 

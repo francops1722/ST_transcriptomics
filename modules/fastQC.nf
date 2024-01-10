@@ -49,7 +49,7 @@ process MULTIQC {
     path(inputfiles)
 
     output:
-    file('*_multiqc_report.html')
+    file('*')
 
     script:
     """

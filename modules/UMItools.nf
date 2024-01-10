@@ -1,27 +1,28 @@
 #!/usr/bin/env nextflow
 process UMI_extract {
     container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
-    publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(pe_reads)
     
     output:
     tuple val(sample), file('*_UMIextracted.fastq.gz'), emit: fastq
-    path('logs/*_log'), emit: logs
+    path('logs/*.log'), emit: log_files
     
 
     script:
     if ("$params.UMItype" == 'semi')
         """
         mkdir logs
-        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern NNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction.log --extract-method=string --bc-pattern NNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
         """
     else if ("$params.UMItype" == 'random')
         """
         mkdir logs
-        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction.log --extract-method=string --bc-pattern NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
         """
     else
         error "Invalid UMI pattern (use only: semi or random)"
@@ -71,19 +72,22 @@ process UMI_QSP_2 {
 process UMI_count {
 
     container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_UMI_Counts", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     path idx
     
     output:
-    path('*')
-    
+    path('*.tsv.gz'), emit: umi_counts
+    path('logs_umi/*.{txt,log}'), emit: log_files
+
     script:
     """
-    umi_tools count --per-gene --gene-tag=XT --assigned-status-tag=XS --per-cell -I ${bam_file} -S ${sample}_counts.tsv.gz
+    mkdir logs_umi
+    umi_tools count --per-gene --gene-tag=XT --assigned-status-tag=XS --per-cell -I ${bam_file} -S ${sample}_counts.tsv.gz --log=logs_umi/${sample}_umiCounts.log
     """
 
 }

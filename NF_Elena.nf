@@ -6,8 +6,9 @@
 params.reads ="/user/gent/446/vsc44685/DataVO_dir/Miseq_01122023/RawData/ERV_2/*_L001_{R1,R2}_001.fastq.gz"
 // include processes
 include {Subsample_Seqtk_or as subs} from "./modules/Seqtk" 
-include {check_QC_or as check_QC_raw; check_QC_or as check_QC_trimmed} from "./modules/fastQC" 
+include {check_QC_or as check_QC_raw; check_QC_or as check_QC_raw_subs; check_QC_or as check_QC_trimmed} from "./modules/fastQC" 
 include {check_QC_or as check_QC_trimmed2} from "./modules/fastQC" 
+include {check_QC_or as check_QC_demux} from "./modules/fastQC" 
 include {CUTADAPT_Trim1_or as trim} from "./modules/trimming"
 include {UMI_extract as UMI_ext} from "./modules/UMItools"
 include {Decode as demux} from "./modules/Demux"
@@ -19,6 +20,10 @@ include {sort_bam_FC as sort_bam} from "./modules/FeatureCounts"
 include {UMI_count as count} from "./modules/UMItools"
 include {FeatureCounts_BAM as FeatureCounts} from "./modules/FeatureCounts"
 include {merge_Counts as merge} from "./modules/FeatureCounts"
+include {merge_Counts as merge} from "./modules/FeatureCounts"
+include {MULTIQC as check_star} from "./modules/fastQC"
+include {MULTIQC as check_FC} from "./modules/fastQC"
+include {plot_reads as plots} from "./modules/Make_plots"
 
 
 log.info """\
@@ -52,38 +57,57 @@ workflow {
     bar_file = file(params.bar_file)
     N = 3 //number of unique barcodes
     Nthr = 6 //6 when M=12 10 when M=36
+    index_step = 0
+    
+    check_QC_raw("raw", pe_reads_ch)
+
     //is subsampling enabled?
     if (params.Subs) {
-         subs(pe_reads_ch)
+         subs(index_step, pe_reads_ch)
          pe_reads_ch = subs.out
+         check_QC_raw_subs("raw_sub", pe_reads_ch)
+         index_step += 1
     }     
-    
-    //pass the 'step' and the raw subs reads to the QC subworkflow
-    check_QC_raw("raw_sub", pe_reads_ch)
     // run cutadapt
-    trim(pe_reads_ch)
+    trim(index_step, pe_reads_ch)
     //QC of trimmed reads
     check_QC_trimmed("trim", trim.out)
     //extract UMI
-    UMI_ext(trim.out)
+    index_step += 1
+    UMI_ext(index_step, trim.out)
     //Demux barcodes
-    demux(bar_file, N, Nthr, UMI_ext.out.fastq)
+    index_step += 1
+    demux(index_step, bar_file, N, Nthr, UMI_ext.out.fastq)
+    check_QC_demux("demux", demux.out)
     //trim of poly A
-    trim2(demux.out)
+    index_step += 1
+    trim2(index_step, demux.out)
     //QC of trimmed reads
     check_QC_trimmed2("trim2", trim2.out)
     //STAR alignment of Read2
-    star(trim2.out, genome)
-    index(star.out.align_bam)
+    index_step += 1
+    star(index_step, trim2.out, genome)
+    index(index_step, star.out.align_bam)
     //Feature Counts BAM input/output
-    FeatureCounts(star.out.align_bam, gtf, index.out)
+    index_step += 1
+    FeatureCounts(index_step, star.out.align_bam, gtf, index.out)
     //Sort BAM files output from FC
-    sort_bam(FeatureCounts.out.FC_bam)
-    index2(sort_bam.out.sorted_bam)
+    sort_bam(index_step, FeatureCounts.out.FC_bam)
+    index2(index_step, sort_bam.out.sorted_bam)
+    FC_files = FeatureCounts.out.log_files.collect()
+    check_FC("FCounts", FC_files)
+    star_files = star.out.log_files.collect()
+    check_star("star", star_files)
     //Counting molecules
-    count(sort_bam.out.sorted_bam, index2.out)
-    input_files = count.out.collect()
-    merge(input_files)
+    index_step += 1
+    count(index_step, sort_bam.out.sorted_bam, index2.out)
+    index_step += 1
+    count_files = count.out.umi_counts.collect()
+    merge(index_step, count_files)
+    //make plots
+    plots(params.outdir, merge.out.mock)
+    
+
 }
 
 workflow.onComplete {

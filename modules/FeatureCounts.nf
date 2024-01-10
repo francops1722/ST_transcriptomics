@@ -1,7 +1,7 @@
 
 process FeatureCounts {
     container './containers/subread:2.0.1--hed695b0_0.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    publishDir "${params.outdir}/FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
     
     input:
     tuple val(sample), path(bam_file)
@@ -20,16 +20,17 @@ process FeatureCounts {
 
 process FeatureCounts_BAM {
     container './containers/subread:2.0.1--hed695b0_0.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
     
     input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     path gtf_file
     path idx
 
     output:
     tuple val(sample), path("*.bam"), emit: FC_bam
-    path("*.summary"), emit: logs
+    path("*.summary"), emit: log_files
 
     script:
     """
@@ -40,10 +41,11 @@ process FeatureCounts_BAM {
 process index_bam_FC {
 
     container './containers/samtools:1.16.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     
     output:
@@ -58,10 +60,11 @@ process index_bam_FC {
 process sort_bam_FC {
 
     container './containers/samtools:1.16.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     
     output:
@@ -74,7 +77,7 @@ process sort_bam_FC {
 }
 
 process merge_featureCounts {
-    publishDir "${params.outdir}/Counts", mode: 'copy'
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy'
 
     input:
     file input_files 
@@ -89,16 +92,18 @@ process merge_featureCounts {
 }
 
 process merge_Counts {
-    publishDir "${params.outdir}/Counts", mode: 'copy'
+    publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy'
     //module 'pandas/1.1.2-foss-2020a-Python-3.8.2' only use when working in cluster joltik 
     module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
 
     input:
+    val (index_step)
     file input_files 
 
     output:
     file 'gene_counts.csv'
     file 'summary_barcodes.csv'
+    val true, emit: mock
 
     script:
     """

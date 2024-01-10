@@ -2,10 +2,11 @@
 
 process Subsample_Seqtk {
     container './containers/seqtk:1.3--hed695b0_2.sif'
-    publishDir "${params.outdir}/Subsampled", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_Subsampled", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val (index_step)
     val(sample)
     tuple path(r1), path(r2)
 
@@ -21,10 +22,11 @@ process Subsample_Seqtk {
 
 process Subsample_Seqtk_or {
     container './containers/seqtk:1.3--hed695b0_2.sif'
-    publishDir "${params.outdir}/Subsampled", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_Subsampled", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val (index_step)
     tuple val(sample), path(pe_reads)
 
     output:
