@@ -7,11 +7,12 @@ process plot_reads {
 
     input:
     path (files)
-    output:
-    file ("*")
+    val ready 
 
     script:
     """
     CountReads.r ${files} 
+    MakeMap.r ${files} 
+    MakeCountPlot.r ${files} 
     """
     }
