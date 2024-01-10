@@ -1,0 +1,2 @@
+﻿Sample_id,R1_path,R2_path,N_barcodes,barcode_file
+Cond_01,/user/gent/446/vsc44685/DataVO_dir/ISQ_Run016_Fastq/Raw_data/condition_01_S1_L001_R1_001.fastq.gz,/user/gent/446/vsc44685/DataVO_dir/ISQ_Run016_Fastq/Raw_data/condition_01_S1_L001_R2_001.fastq.gz,42000,/user/gent/446/vsc44685/DataVO_dir/ISQ_Run016_Fastq/Raw_data/42k36ntset1

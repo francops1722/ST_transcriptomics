@@ -1,6 +1,36 @@
 #!/usr/bin/env nextflow
 process UMI_extract {
-    container './containers/umitools:latest.sif'
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
+    publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
+    tag "${sample}"
+    
+    input:
+    val (index_step)
+    tuple val(sample), path(pe_reads)
+    
+    output:
+    tuple val(sample), file('*_UMIextracted.fastq.gz'), emit: fastq
+    path('logs/*.log'), emit: log_files
+    
+
+    script:
+    if ("$params.UMItype" == 'semi')
+        """
+        mkdir logs
+        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction.log --extract-method=string --bc-pattern NNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+        """
+    else if ("$params.UMItype" == 'random')
+        """
+        mkdir logs
+        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction.log --extract-method=string --bc-pattern NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+        """
+    else
+        error "Invalid UMI pattern (use only: semi or random)"
+}
+
+//to do like QSP - where read 2 has the UMi and barcode and read 1 is for mapping
+process UMI_QSP {
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
     publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
@@ -13,43 +43,58 @@ process UMI_extract {
     
 
     script:
-    if ("$params.UMItype" == 'semi')
-        """
-        mkdir logs
-        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern NNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
-        """
-    else if ("$params.UMItype" == 'random')
-        """
-        mkdir logs
-        umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
-        """
-    else
-        error "Invalid UMI pattern (use only: semi or random)"
+    """
+    mkdir logs
+    umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern X --bc-pattern2 NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+    """   
 }
 
-process UMI_count {
-
-    container './containers/umitools:latest.sif'
-    publishDir "${params.outdir}/Counts", mode: 'copy', overwrite: true 
+//Auxiliary function similar to QSP but read 1 has the UMi and barcode and read 2 is for mapping
+process UMI_QSP_2 {
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
+    publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    tuple val(sample), path(pe_reads)
+    
+    output:
+    tuple val(sample), file('*_UMIextracted.fastq.gz'), emit: fastq
+    path('logs/*_log'), emit: logs
+    
+
+    script:
+    """
+    mkdir logs
+    umi_tools extract --stdin ${pe_reads[0]} --stdout ${sample}_R1_UMIextracted.fastq.gz -L logs/${sample}_extraction_log --extract-method=string --bc-pattern X --bc-pattern2 NNNNNNNNNN --read2-in ${pe_reads[1]} --read2-out ${sample}_R2_UMIextracted.fastq.gz 
+    """   
+}
+process UMI_count {
+
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
+    publishDir "${params.outdir}/${index_step}_UMI_Counts", mode: 'copy', overwrite: true 
+    tag "${sample}"
+    
+    input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     path idx
     
     output:
-    path('*')
-    
+    path('*.tsv.gz'), emit: umi_counts
+    path('logs_umi/*.{txt,log}'), emit: log_files
+
     script:
     """
-    umi_tools count --per-gene --gene-tag=XT --assigned-status-tag=XS --per-cell -I ${bam_file} -S ${sample}_counts.tsv.gz
+    mkdir logs_umi
+    umi_tools count --per-gene --gene-tag=XT --assigned-status-tag=XS --per-cell -I ${bam_file} -S ${sample}_counts.tsv.gz --log=logs_umi/${sample}_umiCounts.log
     """
 
 }
 
 process UMI_dedup_basic {
 
-    container './containers/umitools:latest.sif'
+    container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
     publishDir "${params.outdir}/UMI_dedup", mode: 'copy', overwrite: true 
     tag "${sample}"
     
@@ -59,7 +104,7 @@ process UMI_dedup_basic {
     
     output:
     //path("*")
-    path('*.bam'), emit: dedup_files
+    tuple val(sample), path('*.bam'), emit: dedup_files
     path('logs_dedup/*.{txt,log}'), emit: logs
 
     script:
