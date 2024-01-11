@@ -11,8 +11,10 @@ theme_point<-theme_classic()+theme(strip.background = element_blank())
 main_dir = commandArgs(trailingOnly=TRUE)
 setwd(main_dir)
 
+if (file.exists("./8_Counts_summary/gene_counts.csv")){
+  FC_counts_id<- read.csv("./8_Counts_summary/gene_counts.csv")
+} else { stop("Gene counts do not exists")}
 
-FC_counts_id<- read.csv("./8_Counts_summary/gene_counts.csv")
 colnames(FC_counts_id)[1] <- 'ensembl_gene_id'
 ensembl <- useEnsembl("ensembl",dataset="hsapiens_gene_ensembl", version = 109)
 genes_ens_2 <- getBM(attributes=c('ensembl_gene_id','gene_biotype'),mart=ensembl)
