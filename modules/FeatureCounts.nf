@@ -103,7 +103,6 @@ process merge_Counts {
     output:
     file 'gene_counts.csv'
     file 'summary_barcodes.csv'
-    val true, emit: mock
 
     script:
     """

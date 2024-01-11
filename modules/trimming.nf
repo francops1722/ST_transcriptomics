@@ -11,11 +11,11 @@ process CUTADAPT_Trim1_or {
     tuple val(sample), path(pe_reads)
 
     output:
-    tuple val(sample), file('*_i7Trim.fastq.gz'), emit: trim_out
+    tuple val(sample), file('*.fastq.gz'), emit: trim_out
     //tuple val(sample), file('*_I7Trim.fastq.gz')
     script:
     """
-    cutadapt -a ATCTCGTATGCCGTCTTCTGCTTG -A GTGTAGATCTCGGTGGTCGCCGTATCATT --minimum-length 46 --pair-filter=first --overlap 18 -o ${sample}_R1_i7Trim.fastq.gz -p ${sample}_R2_i7Trim.fastq.gz ${pe_reads[0]} ${pe_reads[1]} 
+    cutadapt -a ATCTCGTATGCCGTCTTCTGCTTG -A GTGTAGATCTCGGTGGTCGCCGTATCATT --minimum-length 46 --pair-filter=first --overlap 18 -o ${sample}_i7Trim_R1.fastq.gz -p ${sample}_i7Trim_R2.fastq.gz ${pe_reads[0]} ${pe_reads[1]} 
     """
 }
 
@@ -90,11 +90,11 @@ process CUTADAPT_oligodT {
     tuple path(r1), path(r2)
 
     output:
-    tuple val(sample), file('*_Ttrim.fastq.gz'), emit: trim_out
+    tuple val(sample), file('*.fastq.gz'), emit: trim_out
     //tuple val(sample), file('*_I7Trim.fastq.gz')
     script:
     """
-    cutadapt -a T{16} --minimum-length 46 --pair-filter=first --overlap 15 -o ${sample}_R1_Ttrim.fastq.gz -p ${sample}_R2_Ttrim.fastq.gz ${r1} ${r2} 
+    cutadapt -a T{16} --minimum-length 46 --pair-filter=first --overlap 15 -o ${sample}_R1_Ttrim.fastq.gz -p ${sample}_Ttrim_R2.fastq.gz ${r1} ${r2} 
     """
 }
 

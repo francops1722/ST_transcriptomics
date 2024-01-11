@@ -11,12 +11,12 @@ process Subsample_Seqtk {
     tuple path(r1), path(r2)
 
     output:
-    tuple path("*R1_subs.fastq.gz"), path("*R2_subs.fastq.gz")
+    tuple path("*_subs_R1.fastq.gz"), path("*R2_subs.fastq.gz")
 
     script:
     """
-    seqtk sample -s 100  ${r1} ${params.Subs} | gzip > ${sample}_R1_subs.fastq.gz;
-	seqtk sample -s 100  ${r2} ${params.Subs} | gzip > ${sample}_R2_subs.fastq.gz;
+    seqtk sample -s 100  ${r1} ${params.Subs} | gzip > ${sample}_subs_R1.fastq.gz;
+	seqtk sample -s 100  ${r2} ${params.Subs} | gzip > ${sample}_subs_R2.fastq.gz;
     """
 }
 
@@ -30,12 +30,12 @@ process Subsample_Seqtk_or {
     tuple val(sample), path(pe_reads)
 
     output:
-    tuple val(sample), file('*_subs.fastq.gz')
+    tuple val(sample), file('*.fastq.gz')
 
     script:
     """
-    seqtk sample -s 100  ${pe_reads[0]} ${params.Subs} | gzip > ${sample}_R1_subs.fastq.gz;
-	seqtk sample -s 100  ${pe_reads[1]} ${params.Subs} | gzip > ${sample}_R2_subs.fastq.gz;
+    seqtk sample -s 100  ${pe_reads[0]} ${params.Subs} | gzip > ${sample}_subs_R1.fastq.gz;
+	seqtk sample -s 100  ${pe_reads[1]} ${params.Subs} | gzip > ${sample}_subs_R2.fastq.gz;
     """
 }
 

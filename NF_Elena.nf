@@ -24,6 +24,7 @@ include {merge_Counts as merge} from "./modules/FeatureCounts"
 include {MULTIQC as check_star} from "./modules/fastQC"
 include {MULTIQC as check_FC} from "./modules/fastQC"
 include {plot_reads as plots} from "./modules/Make_plots"
+include {Dedup_log as dedup_log} from "./modules/Log_dedup"
 
 
 log.info """\
@@ -101,13 +102,14 @@ workflow {
     //Counting molecules
     index_step += 1
     count(index_step, sort_bam.out.sorted_bam, index2.out)
+    log_umi = count.out.log_files.collect()
+    dedup_log(index_step, log_umi)
+    //summary counts
     index_step += 1
     count_files = count.out.umi_counts.collect()
     merge(index_step, count_files)
     //make plots
     plots(params.outdir, merge.out.mock)
-    
-
 }
 
 workflow.onComplete {
