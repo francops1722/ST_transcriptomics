@@ -4,7 +4,7 @@
 
 // input parameters 
 params.reads ="/user/gent/446/vsc44685/DataVO_dir/Miseq_01122023/RawData/ERV_1/*_L001_{R1,R2}_001.fastq.gz"
-//params.reads = "/user/gent/446/vsc44685/DataVO_dir/Miseq_01122023/Outputs/02_26_3/demux/*_demux_{R1,R2}.fastq.gz"
+//params.reads ="/user/gent/446/vsc44685/ScratchVO_dir/Out_test/3_demux/*_demux_{R1,R2}.fastq.gz"
 // include processes
 include {Subsample_Seqtk_or as subs} from "./modules/Seqtk" 
 include {check_QC_or as check_QC_raw; check_QC_or as check_QC_raw_subs; check_QC_or as check_QC_trimmed} from "./modules/fastQC" 
@@ -23,9 +23,8 @@ include {FeatureCounts_BAM as FeatureCounts} from "./modules/FeatureCounts"
 include {merge_Counts as merge} from "./modules/FeatureCounts"
 include {MULTIQC as check_star} from "./modules/fastQC"
 include {MULTIQC as check_FC} from "./modules/fastQC"
-
-
-
+include {Dedup_log as dedup_log} from "./modules/Log_dedup"
+include {plot_reads as plots} from "./modules/Make_plots"
 
 
 log.info """\
@@ -78,7 +77,7 @@ workflow {
     //extract UMI
     index_step += 1
     UMI_ext(index_step, trim.out)
-    //Demux barcodes
+    // //Demux barcodes
     index_step += 1
     demux(index_step, bar_file, N, Nthr, UMI_ext.out.fastq)
     check_QC_demux("demux", demux.out)
@@ -104,9 +103,13 @@ workflow {
     //Counting molecules
     index_step += 1
     count(index_step, sort_bam.out.sorted_bam, index2.out)
+    log_umi = count.out.log_files.collect()
+    dedup_log(index_step, log_umi)
     index_step += 1
     count_files = count.out.umi_counts.collect()
     merge(index_step, count_files)
+    //make plots
+    plots(params.outdir, merge.out.mock)
 }
 
 workflow.onComplete {
@@ -117,3 +120,4 @@ workflow.onComplete {
 workflow.onError {
     println "Oops... Pipeline execution stopped with the following message: ${workflow.errorMessage}"
 }
+
