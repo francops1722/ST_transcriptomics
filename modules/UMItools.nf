@@ -31,10 +31,11 @@ process UMI_extract {
 //to do like QSP - where read 2 has the UMi and barcode and read 1 is for mapping
 process UMI_QSP {
     container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
-    publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(pe_reads)
     
     output:
@@ -52,10 +53,11 @@ process UMI_QSP {
 //Auxiliary function similar to QSP but read 1 has the UMi and barcode and read 2 is for mapping
 process UMI_QSP_2 {
     container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
-    publishDir "${params.outdir}/UMI_extracted", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(pe_reads)
     
     output:
@@ -95,10 +97,11 @@ process UMI_count {
 process UMI_dedup_basic {
 
     container './containers/umi_tools:1.1.4--py310h4b81fae_2.sif'
-    publishDir "${params.outdir}/UMI_dedup", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_UMI_dedup", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
+    val (index_step)
     tuple val(sample), path(bam_file)
     path index_file
     

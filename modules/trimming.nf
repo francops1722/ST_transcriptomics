@@ -102,10 +102,11 @@ process CUTADAPT_oligodT {
 process CUTADAPT_QSP {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_1", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_1", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val(index_step)
     tuple val(sample), path(pe_reads)
 
     output:
@@ -119,10 +120,11 @@ process CUTADAPT_QSP {
 process CUTADAPT_QSP_2 {
 
     container './containers/cutadapt:4.5--py39hf95cd2a_0.sif'
-    publishDir "${params.outdir}/cutadapt_1", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/${index_step}_cutadapt_1", mode: 'copy', overwrite: true
     tag "${sample}"
 
     input:
+    val(index_step)
     tuple val(sample), path(pe_reads)
 
     output:

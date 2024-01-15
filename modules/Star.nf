@@ -49,11 +49,12 @@ process Star_Align_R2v2 {
 process Star_Align_QSP {
     
     container './containers/star:2.7.8a--0.sif'
-    publishDir "${params.outdir}/Star", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
     tag "${sample}"
     //label "med"
     
     input:
+    val(index_step)
     tuple val(sample), path(se_reads)
     path genome
     
