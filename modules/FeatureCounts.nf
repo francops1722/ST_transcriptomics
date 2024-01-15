@@ -1,9 +1,10 @@
 
 process FeatureCounts {
     container './containers/subread:2.0.1--hed695b0_0.sif'
-    publishDir "${params.outdir}/FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
     
     input:
+    val(index_step)
     tuple val(sample), path(bam_file)
     path gtf_file
     path idx
@@ -80,6 +81,7 @@ process merge_featureCounts {
     publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy'
 
     input:
+    val (index_step)
     file input_files 
 
     output:
@@ -103,6 +105,7 @@ process merge_Counts {
     output:
     file 'gene_counts.csv'
     file 'summary_barcodes.csv'
+    val 'ready', emit: mock
 
     script:
     """
