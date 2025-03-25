@@ -2,13 +2,10 @@
 from numpy import *
 import pickle
 import torch
-import gzip
-from itertools import zip_longest
-import numpy as np
 import argparse
 import dnaio
 import subprocess
-
+import re
 
 print("Defining Functions")
 
@@ -185,16 +182,18 @@ print("all functions now defined.")
 
 #Parsing arguments
 
-parser = argparse.ArgumentParser(description="""Decode ST barcodes""")
+parser = argparse.ArgumentParser(prog='ST', description="""Decode ST barcodes""")
 parser.add_argument ("-N", dest="Num_bar", type=int, default=42000, help="Number of spots/barcodes")
 parser.add_argument ("-M", dest="Len_bar", type=int, default=36, help="Length barcodes")
 parser.add_argument ("-B", dest="Bar_file", default="./barcodes", help="File with barcodes, generated with the script 1_BarcodeGen.py")
-#parser.add_argument ("-P", dest="Pick_file",default="./barcodes.pkl", help="Path to save the Pickle File with barcodes")
 parser.add_argument("-R1", "--input_R1", dest="R1_path", help="Path to the R1 fastq files")
-parser.add_argument("-R2", "--input_R2", dest="R2_path", help="Path to the R2 fastq files")
+# parser.add_argument("-R2", "--input_R2", dest="R2_path", help="Path to the R2 fastq files")
 parser.add_argument("--Ntriage", dest="Ntriage", type=int, help="Number of barcodes passed from triage to Levenshtein")
 parser.add_argument("--Nthresh", dest="Nthresh", type=int, help="user set to Levenshtein score greater than which is called an erasure")
 parser.add_argument("--out-prefix", dest="out_prefix", help="Prefix for out file")
+#new arguments for paralellization
+parser.add_argument ("-C", dest="Cuda", type=int, default=0, help="Cuda number")
+parser.add_argument ("--Seg_id", dest="segmentid", help="For example 1/2, 2/2")
 args = parser.parse_args()
 
 print("arguments parsed")
@@ -205,17 +204,12 @@ M=args.Len_bar
 Ncos=4
 filename = args.Bar_file
 read1= args.R1_path
-read2= args.R2_path
-#start_pos= args.start
-#barcode_results = args.out_file
+# read2= args.R2_path
 Ntriage = args.Ntriage
 Nthresh = args.Nthresh
 Outfile = args.out_prefix
-print("N:", N)
-print("M:", M)
-print(Ntriage)
-print(read1)
-print(Outfile)
+cudano = args.Cuda
+segmentid = args.segmentid
 
 
 with open(filename) as IN: 
@@ -243,7 +237,6 @@ for i,code in enumerate(codes) :
 print("finished making code auxilliary tables, now pickling")        
 pickledict = {"N" : N, "M" : M, "allseqs" : allseqs,
     "alltrimers" : alltrimers, "allbitmaps" : allbitmaps, "coses" : coses, "cosvecs" : cosvecs}
-
 # with open(picklefilename,'wb') as OUT :
 #     pickle.dump(pickledict,OUT)
 # print(f"finished pickling code with {N} codewords of length {M} to {picklefilename}")
@@ -251,27 +244,14 @@ pickledict = {"N" : N, "M" : M, "allseqs" : allseqs,
 
 # DECODING Step 1. Move the code (assumed loaded above) and reads (from file) to the GPU.
 
-
 print("moving to CUDA device")
-
+# verify cuda and set device
 if torch.cuda.is_available() :
-    device = torch.device("cuda")
+    device = torch.device(f"cuda:{cudano}")
     cudaname = torch.cuda.get_device_name()
 else :
     raise RuntimeError("Required GPU not found! Exiting.")
-print(f"Using {device} device {cudaname}.")
-
-torch.set_grad_enabled(False)
-tallseqs = torch.tensor(array(allseqs), device=device)
-talltrimers = torch.tensor(array(alltrimers), device=device)
-tallbitmaps = torch.tensor(allbitmaps.astype(int64), dtype=torch.int64, device=device) # 
-tcoses = torch.tensor(coses, dtype=torch.float, device=device)
-tcosvecs = cosvecs.to(device)
-
-
-#pe_reads = get_pe_fastq(read1, read2)
-
-# DECODING Step 2 (main step). Primary and secondary triage, followed by Levenshtein
+print(f"{segmentid}: Using {device} device {cudaname}.")
 
 # Use subprocess to execute the command
 out = subprocess.Popen(['zcat', read1], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -279,9 +259,22 @@ out = subprocess.Popen(['zcat', read1], stdout=subprocess.PIPE, stderr=subproces
 val = subprocess.Popen(['wc', '-l'], stdin=out.stdout, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].strip()
 #checking errors
 if not val.isdigit() : raise RuntimeError(f"failed to count lines in {read1}")
-Qq = int(val)
-# reads.shape[0] or smaller number, how many reads to do
-print(f'The file has {Qq} reads')
+totlines = int(val)
+#parse segment ID
+num,denom = re.match('([0-9]+)/([0-9]+)',segmentid).groups()
+startline = int(int(totlines*(float(num)-1.)/float(denom))/4)
+endline = int(int(totlines*float(num)/float(denom))/4)
+
+#Copy tensors to gpu
+torch.set_grad_enabled(False)
+tallseqs = torch.tensor(array(allseqs), device=device)
+talltrimers = torch.tensor(array(alltrimers), device=device)
+tallbitmaps = torch.tensor(allbitmaps.astype(int64), dtype=torch.int64, device=device) # 
+tcoses = torch.tensor(coses, dtype=torch.float, device=device)
+tcosvecs = cosvecs.to(device)
+
+# DECODING Step 2 (main step). Primary and secondary triage, followed by Levenshtein
+#Qq = endline # reads.shape[0] or smaller number, how many reads to do
 
 torch.set_grad_enabled(False)
 
@@ -291,7 +284,7 @@ mydist = ApproximateLevenshtein(M,M,Ntriage, 1.,1.,1.,1.)
 Ncos = tcosvecs.shape[0]
 dists = torch.zeros(Ncos+1, N, dtype=torch.float, device=device) # will hold distances for each read
 allrank = torch.zeros(Ncos+1 ,N, dtype=torch.float, device=device)
-# best = torch.zeros(Qq, dtype=torch.long, device=device)
+#best = torch.zeros(Qq, dtype=torch.long, device=device)
 
 
 #For testing purposes
@@ -327,51 +320,70 @@ def bar_demux (seq):
 print("Starting Demux")
 #code to extract the barcode from R1, correct barcodes and write them to the headers
 
-Read1_out = Outfile + "_demux_R1.fastq.gz"
-Read2_out = Outfile + "_demux_R2.fastq.gz"
-print(Read1_out)
+Read1_out = Outfile + "_" + num + "of" + denom + "_R1.fastq.gz"
+# Read2_out = Outfile + "_" + num + "of" + denom + "_R2.fastq.gz"
 
+#Pair-end
 # with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
+#     i = 0
 #     for r1, r2 in reader:
-#         read = r1.sequence.lower().replace("n","")
-#         if len(read) >= M:
+#         if i < startline :
 #             pass
-#         seq = encode(read[0:M])
-#         barcode = bar_demux(seq)
-#         if barcode != "erasure":
-#             r1 = r1[M:]
-#             #r2 = r2[36:]
-#             split_name = r2.name.split("_")
-#             #split_name = r2.name
-#             r1.name = split_name[0] + "_" + barcode.strip().upper() + "_" + split_name[1]
-#             #r1.name = split_name + "_" + barcode.strip().upper() 
-#             r2.name = split_name[0] + "_" + barcode.strip().upper() + "_" + split_name[1]
-#             #r2.name = split_name + "_" +  barcode.strip().upper() 
-#             writer.write(r1, r2)
-
-with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
-    for r1, r2 in reader:
-        read = r1.sequence.lower().replace("n","")
-        if len(read) < 46:
-            continue  # Skip to the next iteration if the length of the read is less than M
-        seq = encode(read[10:46])
-        barcode = bar_demux(seq)
-        if barcode != "erasure":
-            r1.name = r1.name + "_" + barcode.strip().upper() 
-            r2.name = r2.name + "_" + barcode.strip().upper() 
-            writer.write(r1, r2)
-
-
-# with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
-#     for r1, r2 in reader:
-#         read = r1.sequence.lower().replace("n","")
-#         if 35 < len(read) < 46:
-#          # Skip to the next iteration if the length of the read is less than M
-#             seq = encode(read[-36:])
+#         elif i >= endline :
+#             break
+#         else :
+#             read = r1.sequence.lower().replace("n","")
+#             if len(read) >= M:
+#                 pass
+#             seq = encode(read[0:M])
 #             barcode = bar_demux(seq)
+            
+            
+#             read = r1.sequence.lower().replace("n","")
+#             if 35 < len(read) < 46:
+#                 seq = encode(read[-36:])
+#             elif len(read) > 45:
+#                 seq = encode(read[10:46])
+#             else:
+#                 continue           
+#             barcode = bar_demux(seq)
+            
 #             if barcode != "erasure":
-#                 r1.name = r1.name + "_" + barcode.strip().upper() 
-#                 r2.name = r2.name + "_" + barcode.strip().upper() 
+#                 r1 = r1[M:]
+#                 split_name = r2.name.split("_")
+#                 r1.name = split_name[0] + "_" + barcode.strip().upper() + "_" + split_name[1]
+#                 r2.name = split_name[0] + "_" + barcode.strip().upper() + "_" + split_name[1]
 #                 writer.write(r1, r2)
-#         else:
-#             continue 
+#         i+=1
+        
+#Single-end
+with dnaio.open(read1) as reader, dnaio.open(Read1_out, mode="w") as writer:
+    i = 0
+    for r1 in reader:
+        if i < startline :
+            pass
+        elif i >= endline :
+            break
+        else :
+            read = r1.sequence.lower().replace("n","")
+            if len(read) >= M:
+                pass
+            seq = encode(read[0:M])
+            barcode = bar_demux(seq)
+            
+            
+            read = r1.sequence.lower().replace("n","")
+            if 35 < len(read) < 46:
+                seq = encode(read[-36:])
+            elif len(read) > 45:
+                seq = encode(read[10:46])
+            else:
+                continue           
+            barcode = bar_demux(seq)
+            
+            if barcode != "erasure":
+                r1 = r1[M:]
+                split_name = r1.name.split("_")
+                r1.name = split_name[0] + "_" + barcode.strip().upper() + "_" + split_name[1]
+                writer.write(r1)
+        i+=1

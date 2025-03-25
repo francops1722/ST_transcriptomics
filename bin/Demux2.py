@@ -349,29 +349,34 @@ print(Read1_out)
 #             #r2.name = split_name + "_" +  barcode.strip().upper() 
 #             writer.write(r1, r2)
 
+# with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
+#     for r1, r2 in reader:
+#         read = r1.sequence.lower().replace("n","")
+#         if len(read) < 16:
+#             continue  # Skip to the next iteration if the length of the read is less than M
+#         seq = encode(read[10:16])
+#         barcode = bar_demux(seq)
+#         if barcode != "erasure":
+#             r1.name = r1.name + "_" + barcode.strip().upper() 
+#             r2.name = r2.name + "_" + barcode.strip().upper() 
+#             writer.write(r1, r2)
+
+#To demux short reads
+
+
 with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
     for r1, r2 in reader:
         read = r1.sequence.lower().replace("n","")
-        if len(read) < 46:
-            continue  # Skip to the next iteration if the length of the read is less than M
-        seq = encode(read[10:46])
+        if 35 < len(read) < 46:
+            seq = encode(read[-36:])
+        elif len(read) > 45:
+            seq = encode(read[10:46])
+        else:
+            continue           
         barcode = bar_demux(seq)
         if barcode != "erasure":
             r1.name = r1.name + "_" + barcode.strip().upper() 
             r2.name = r2.name + "_" + barcode.strip().upper() 
             writer.write(r1, r2)
-
-
-# with dnaio.open(read1, read2) as reader, dnaio.open(Read1_out, Read2_out, mode="w") as writer:
-#     for r1, r2 in reader:
-#         read = r1.sequence.lower().replace("n","")
-#         if 35 < len(read) < 46:
-#          # Skip to the next iteration if the length of the read is less than M
-#             seq = encode(read[-36:])
-#             barcode = bar_demux(seq)
-#             if barcode != "erasure":
-#                 r1.name = r1.name + "_" + barcode.strip().upper() 
-#                 r2.name = r2.name + "_" + barcode.strip().upper() 
-#                 writer.write(r1, r2)
-#         else:
-#             continue 
+        else:
+            continue 

@@ -5,15 +5,15 @@ require(reshape2)
 require(dplyr)
 require(biomaRt)
 
-color_panel2<-c("#e35d6a","#5bb75b","#428bca","#e87810","#23496b","#ffbf00")
 theme_point<-theme_classic()+theme(strip.background = element_blank())
 
 main_dir = commandArgs(trailingOnly=TRUE)
-setwd(main_dir)
+path_csv <- list.files(main_dir, recursive=TRUE)%>%str_subset(., "gene_counts.csv")
 
-if (file.exists("./8_Counts_summary/gene_counts.csv")){
-  FC_counts_id<- read.csv("./8_Counts_summary/gene_counts.csv")
+if (file.exists(paste(main_dir, path_csv, sep="/"))){
+  FC_counts_id<- read.csv(paste(main_dir, path_csv, sep="/"))
 } else { stop("Gene counts do not exists")}
+
 
 colnames(FC_counts_id)[1] <- 'ensembl_gene_id'
 ensembl <- useEnsembl("ensembl",dataset="hsapiens_gene_ensembl", version = 109)
@@ -35,7 +35,6 @@ p1 <- ggplot(number_genes_detected,aes(x=Sample,y=genes_above0, col=Sample))+
   theme(panel.grid.major.x=element_line(linetype = "dashed",color="gray88")) +
   labs(x="", y="# protein coding genes",title="Protein coding genes (unfiltered)") +
   scale_y_continuous(limits = c(0, NA))+
-  scale_color_manual(values=color_panel2) +
   coord_flip()
 
 p3 <- ggplot(number_genes_detected_10, aes(x=Sample,y=genes_above10, col=Sample))+
@@ -44,8 +43,8 @@ p3 <- ggplot(number_genes_detected_10, aes(x=Sample,y=genes_above10, col=Sample)
   theme(panel.grid.major.x=element_line(linetype = "dashed",color="gray88")) +
   labs(x="", y="# protein coding genes",title="Protein coding genes (>3)") +
   scale_y_continuous(limits = c(0, NA))+
-  scale_color_manual(values=color_panel2) +
   coord_flip()
 
 ggsave("ProtCodGenes_noFilt.pdf", plot=p1, height=4, width=6, dpi = 300, useDingbats=F)
 ggsave("ProtCodGenes_Filt.pdf", plot=p3, height=4, width=6, dpi = 300, useDingbats=F)
+

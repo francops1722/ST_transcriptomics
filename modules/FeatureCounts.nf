@@ -1,13 +1,16 @@
 
 process FeatureCounts {
-    container './containers/subread:2.0.1--hed695b0_0.sif'
-    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    container './containers/subread.sif'
+    label 'low'
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true   
+    tag "${sample}" 
     
     input:
     val(index_step)
     tuple val(sample), path(bam_file)
     path gtf_file
-    path idx
+    //tuple val(sample), path(bam_file_or), path(index)
+    //tuple val(sample), path(index)
 
     output:
     path("*.count"), emit: counts
@@ -20,14 +23,16 @@ process FeatureCounts {
 }
 
 process FeatureCounts_BAM {
-    container './containers/subread:2.0.1--hed695b0_0.sif'
-    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true  //, pattern: "*.bam"  
+    container './containers/subread.sif'
+    label 'low'
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true 
+    tag "${sample.sample}"
     
     input:
     val (index_step)
     tuple val(sample), path(bam_file)
     path gtf_file
-    path idx
+    tuple val(sample), path(idx)
 
     output:
     tuple val(sample), path("*.bam"), emit: FC_bam
@@ -35,22 +40,23 @@ process FeatureCounts_BAM {
 
     script:
     """
-    featureCounts -s 1 -T 4 -t exon -g gene_id -a ${gtf_file}  -o ${sample} -R BAM ${bam_file} 
+    featureCounts -s 1 -T 4 -t exon -g gene_id -a ${gtf_file}  -o ${sample.sample} -R BAM ${bam_file} 
     """
 }
 
 process index_bam_FC {
 
-    container './containers/samtools:1.16.sif'
+    container './containers/samtools.sif'
+    label 'low'
     publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true
-    tag "${sample}"
+    tag "${sample.sample}"
     
     input:
     val (index_step)
     tuple val(sample), path(bam_file)
     
     output:
-    path("*.bai")
+    tuple val(sample), path("*.bai")
 
     script:
     """
@@ -59,10 +65,10 @@ process index_bam_FC {
 }
 
 process sort_bam_FC {
-
-    container './containers/samtools:1.16.sif'
+    container './containers/samtools.sif'
+    label 'low'
     publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true
-    tag "${sample}"
+    tag "${sample.sample}" 
     
     input:
     val (index_step)
@@ -73,17 +79,18 @@ process sort_bam_FC {
 
     script:
     """
-    samtools sort ${bam_file} -o ${sample}_assigned_sorted.bam
+    samtools sort ${bam_file} -o ${sample.sample}_assigned_sorted.bam
     """
 }
 
 process merge_featureCounts {
-    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy'
+    publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy'
+    label 'low'
 
     input:
     val (index_step)
     file input_files 
-
+    
     output:
     file 'merged_gene_counts.txt'
 
@@ -95,7 +102,6 @@ process merge_featureCounts {
 
 process merge_Counts {
     publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy'
-    //module 'pandas/1.1.2-foss-2020a-Python-3.8.2' only use when working in cluster joltik 
     module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
 
     input:
@@ -113,3 +119,19 @@ process merge_Counts {
     """
 }
 
+process table_reads {
+    publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy', overwrite: true 
+    module 'R-bundle-Bioconductor/3.15-foss-2022a-R-4.2.1'
+
+    input:
+    val (index_step)
+    path files
+    val ready
+    output:
+    file('*')
+    
+    script:
+    """
+    MakeReadsTable.r ${files}
+    """
+    }

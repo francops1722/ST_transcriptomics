@@ -53,13 +53,18 @@ log.info """
     """.stripIndent()
 
 // Create the channels
+
 samples_ch = Channel
                 .fromPath(params.CSVfile)
                 .splitCsv(header:true)
 
-sample_id = samples_ch.map{ row -> row.Sample_id} 
-reads_ch = samples_ch.map{ row -> tuple(row.R1_path, row.R2_path) }
-N = samples_ch.map{ row -> row.N_barcodes} 
+samples_ch.map{ 
+    row -> id = row.Sample_id
+    reads = tuple(row.R1_path, row.R2_path)
+    N = row.N_barcodes
+    return [[sample:id, type:N], reads]
+    }.view()
+
 bar_file = samples_ch.map{ row -> row.barcode_file} 
 genome = file(params.genome)
 gtf = file(params.gtf_file)
@@ -70,22 +75,25 @@ Nthr = params.N42
 Nthr = params.N86
 }
 
+
 index_step = 0
 
 workflow{
         
-        QC_raw('raw', reads_ch)
+        QC_raw('raw', reads)
+
         if (params.Subs) {
-                subs(index_step, sample_id, reads_ch)
+                subs(index_step, sample_id, reads)
                 reads_ch = subs.out
-                QC_raw_subs('raw_subs', reads_ch)
+                QC_raw_subs('raw_subs', reads)
                 index_step += 1
         } 
+
         // run cutadapt
         trim(index_step, sample_id, reads_ch)
         //extract UMI
         index_step += 1
-        UMI_ext(index_step, trim.out)
+        UMI_ext(sampleid, index_step, trim.out)
         //Demux barcodes
         index_step += 1
         demux(index_step, bar_file, N, Nthr, UMI_ext.out.fastq)

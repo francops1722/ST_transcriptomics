@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -N NSQ2K_126_Ribo
+#PBS -l nodes=1:ppn=2
+#PBS -l walltime=00:30:00
+#PBS -l mem=64gb
+
+cd /user/gent/446/vsc44685/ScratchVO_dir/ST_transcriptomics_local
+
+ml Nextflow/23.10.0
+nextflow run main.nf -resume #-with-report report_test.html

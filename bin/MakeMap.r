@@ -1,24 +1,22 @@
 #!/usr/bin/env Rscript
-
 require(tidyverse)
 require(reshape2)
 require(dplyr)
 
-color_panel2<-c("#e35d6a","#5bb75b","#428bca","#e87810","#23496b","#ffbf00")
 
 #setting paths
 main_dir = commandArgs(trailingOnly=TRUE)
-setwd(main_dir)
-star_path <- "multiqc/star/star_multiqc_report_data/multiqc_star.txt"
+path_csv <- list.files(main_dir, recursive=TRUE)%>%str_subset(., "ReadsNumber.csv")
+star_path <- paste0(main_dir, "/multiqc/star/star_multiqc_report_data/multiqc_star.txt")
 
 #reading star stats
 if (file.exists(star_path)){
   star_df <- read_delim(star_path)
-  reads_df <- read.csv("ReadsNumber.csv", header = T, row.names = 1)
+  reads_df <- read.csv(paste(main_dir, path_csv, sep="/"), header = T, row.names = 1)
   reads_df$Sample <- str_replace(reads_df$Sample, "_R2", "")
   Nreads <- merge(reads_df, star_df[, c("Sample", "uniquely_mapped")], by='Sample')
-  if ("raw_sub"%in%colnames(reads_df)){
-    colnames(Nreads)[colnames(Nreads)=="raw_sub"] <- "raw_reads"
+  if ("raw_subs"%in%colnames(reads_df)){
+    colnames(Nreads)[colnames(Nreads)=="raw_subs"] <- "raw_reads"
   }else{
     colnames(Nreads)[colnames(Nreads)=="raw"] <- "raw_reads"
   }
@@ -38,7 +36,7 @@ Nreads2_plot<- Nreads %>%
   scale_color_identity(name = "Status",
                        aesthetics = c("color"),
                        breaks = c("black", "#428bca"),
-                       labels = c("Raw reads", "Uniquely mapped"), guide = "legend") + scale_fill_manual(values = color_panel2)
+                       labels = c("Raw reads", "Uniquely mapped"), guide = "legend") 
 
 
 ggsave( "UniqvsRaw.pdf", Nreads2_plot, dpi = 300, width = 8, height = 6)
@@ -55,7 +53,6 @@ melt_data2 <- star_data %>%
 alignment_plot<-melt_data2 %>% ggplot(aes(x=Sample, y=reads, color=status)) + geom_bar(stat='identity', position = 'fill', width = 0.8, fill="transparent") + 
   geom_text(aes(label = ifelse(reads < 2, NA, paste0(round(reads,1), "%")), y = reads), position = position_fill(vjust = 0.5), size=2)+
   theme_bw()+ coord_flip()+
-  scale_color_manual(values=color_panel2) +
   labs(title="Alignment of read2 - Subsampling", y = 'Fraction from trimmed reads', x = "Sample", subtitle = "The 100% represent the #reads after 2nd trimming")
 
 ggsave( "Alignment.pdf", alignment_plot, dpi = 300, width = 8, height = 6)
