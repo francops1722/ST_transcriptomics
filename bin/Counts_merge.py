@@ -25,7 +25,7 @@ def merge_BarCounts(input_files, out_file):
     logger.addHandler(logging.StreamHandler())
     logger.setLevel(logging.INFO)
 
-    input_files = glob.glob("*_counts.tsv.gz")
+    #input_files = glob.glob("*_counts.tsv.gz")
     df_final = pd.DataFrame()
     i = 0
 
@@ -50,7 +50,7 @@ def merge_Counts(input_files, out_file):
     logger.addHandler(logging.StreamHandler())
     logger.setLevel(logging.INFO)
 
-    input_files = glob.glob("*_counts.tsv.gz")
+    #input_files = glob.glob("*_counts.tsv.gz")
     df_final = pd.DataFrame()
     i = 0
 

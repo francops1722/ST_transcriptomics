@@ -2,8 +2,7 @@
 
 // set default input parameters (these can be altered by calling their flag on the command line, e.g., nextflow run main.nf --reads 'data2/*_R{1,2}.fastq')
 
-// input parameters 
-params.reads ="/user/gent/446/vsc44685/DataVO_dir/Miseq_01122023/RawData/ERV_2/*_L001_{R1,R2}_001.fastq.gz"
+//params.reads ="/user/gent/446/vsc44685/ScratchVO_dir/Out_test/3_demux/*_demux_{R1,R2}.fastq.gz"
 // include processes
 include {Subsample_Seqtk_or as subs} from "./modules/Seqtk" 
 include {check_QC_or as check_QC_raw; check_QC_or as check_QC_raw_subs; check_QC_or as check_QC_trimmed} from "./modules/fastQC" 
@@ -22,8 +21,8 @@ include {FeatureCounts_BAM as FeatureCounts} from "./modules/FeatureCounts"
 include {merge_Counts as merge} from "./modules/FeatureCounts"
 include {MULTIQC as check_star} from "./modules/fastQC"
 include {MULTIQC as check_FC} from "./modules/fastQC"
-include {plot_reads as plots} from "./modules/Make_plots"
 include {Dedup_log as dedup_log} from "./modules/Log_dedup"
+include {plot_reads as plots} from "./modules/Make_plots"
 
 
 log.info """\
@@ -49,19 +48,20 @@ Threads          : $params.threads
 ================================
 """
 
-workflow {
+workflow  {
     // set input data
     pe_reads_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
     genome = file(params.genome)
     gtf = file(params.gtf_file)
-    bar_file = file(params.bar_file)
-    N = 3 //number of unique barcodes
-    Nthr = 6 //6 when M=12 10 when M=36
+    //bar_file = "/user/gent/446/vsc44685/Scratch_dir/NF_tests/ERV_barcodes"
+    //bar_file = file(params.Bar)
+    N = 3
+    Nthr = 12//6
     index_step = 0
-    
+    //is subsampling enabled?
+
     check_QC_raw("raw", pe_reads_ch)
 
-    //is subsampling enabled?
     if (params.Subs) {
          subs(index_step, pe_reads_ch)
          pe_reads_ch = subs.out
@@ -76,12 +76,13 @@ workflow {
     index_step += 1
     UMI_ext(index_step, trim.out)
     //Demux barcodes
+    //index_step += 1
+    // demux(index_step, bar_file, N, Nthr, UMI_ext.out.fastq)
+    // demux(index_step, bar_file, N, Nthr, pe_reads_ch)
+    // check_QC_demux("demux", demux.out)
+    // trim of poly A
     index_step += 1
-    demux(index_step, bar_file, N, Nthr, UMI_ext.out.fastq)
-    check_QC_demux("demux", demux.out)
-    //trim of poly A
-    index_step += 1
-    trim2(index_step, demux.out)
+    trim2(index_step, UMI_ext.out.fastq)
     //QC of trimmed reads
     check_QC_trimmed2("trim2", trim2.out)
     //STAR alignment of Read2
@@ -103,7 +104,6 @@ workflow {
     count(index_step, sort_bam.out.sorted_bam, index2.out)
     log_umi = count.out.log_files.collect()
     dedup_log(index_step, log_umi)
-    //summary counts
     index_step += 1
     count_files = count.out.umi_counts.collect()
     merge(index_step, count_files)
@@ -119,3 +119,4 @@ workflow.onComplete {
 workflow.onError {
     println "Oops... Pipeline execution stopped with the following message: ${workflow.errorMessage}"
 }
+

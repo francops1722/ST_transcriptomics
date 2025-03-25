@@ -1,0 +1,70 @@
+{
+  "type": "object",
+  "properties": {
+    "UMItype": {
+      "type": "string",
+      "description":"UMI can be random or semi",
+      "default": "random"
+    },
+    "flavour": {
+      "type": "string",
+      "description":"Pipeline to run: ST, QSP",
+      "default": "ST"
+    },
+    "genome": {
+      "type": "string",
+      "description":"add the path to the reference genome",
+      "default": "/data/gent/vo/000/gvo00027/resources/STAR_index/Homo_sapiens/GRCh38.dna.primary_assembly.chrIS_spikes_45S.star_index"
+    },
+    "gtf_file": {
+      "type": "string",
+      "description":"add the path to the gtf file",
+      "default": "/data/gent/vo/000/gvo00027/resources/Ensembl_transcriptomes/Homo_sapiens/GRCh38/Homo_sapiens.GRCh38.109.chrIS_spikes_45S.gtf"
+    },
+    "CSVfile": {
+      "type": "string",
+      "description":"add the path to the samplesheet",
+      "default": "/kyukon/scratch/gent/vo/000/gvo00027/vsc44685/ST_transcriptomics_local/testing/Test_CSV.csv"
+    },
+    "reads": {
+      "type": "string",
+      "description":"path to the fastqfiles"
+    },
+    "outdir": {
+      "type": "string",
+      "description":"add the path to save the outputs",
+      "default": "/user/gent/446/vsc44685/ScratchVO_dir/Adv_NF_2"
+    },
+    "Subs": {
+      "type": "integer",
+      "description":"Number of reads to downsample all files",
+      "default": 10000
+    },
+    "N42": {
+      "type": "integer",
+      "description":"levenshtein distance threshold for barcode decoding",
+      "default": 10
+    },
+    "N21": {
+      "type": "integer",
+      "description":"levenshtein distance threshold for barcode decoding",
+      "default": 11
+    },
+    "N3": {
+      "type": "integer",
+      "description":"levenshtein distance threshold for barcode decoding",
+      "default": 12
+    },
+    "M": {
+      "type": "integer",
+      "description":"length of barcode",
+      "default": 36
+    },
+    "Ntriage": {
+      "type": "integer",
+      "description":"Number of barcodes to pass triage",
+      "default": 100
+    }
+  },
+  "required": ["CSVfile", "UMItype", "genome", "gtf_file", "Ntriage"]
+}

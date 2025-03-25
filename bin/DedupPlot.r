@@ -4,13 +4,13 @@ require(tidyverse)
 require(reshape2)
 require(dplyr)
 
-color_panel2<-c("#e35d6a","#5bb75b","#428bca","#e87810","#23496b","#ffbf00")
+
 
 #setting paths
 main_dir = commandArgs(trailingOnly=TRUE)
-setwd(main_dir)
+#setwd(main_dir)
 #reading report file
-path_dedup = "./7_UMI_Counts/logs_umi/UMI_dedup.txt"
+path_dedup = paste0(main_dir, "/6_UMI_Counts/logs_umi/UMI_dedup.txt")
 
 if (file.exists(path_dedup)){
     dedup <- read.table(path_dedup)
@@ -32,6 +32,6 @@ dedup_plot<- dedup %>%
   scale_color_identity(name = "Status",
                        aesthetics = c("color"),
                        breaks = c("black", "#428bca"),
-                       labels = c("Input reads", "Output reads"), guide = "legend") + scale_fill_manual(values = color_panel2)
+                       labels = c("Input reads", "Output reads"), guide = "legend") 
 
 ggsave("Duplication.pdf", plot=dedup_plot, width = 6, height = 4, dpi = 300, useDingbats=F)

@@ -1,0 +1,2 @@
+Sample_id,R1_path,R2_path,N_barcodes,barcode_file
+S1,/scratch/gent/vo/000/gvo00027/projects/FAP/200325_TLP03_TLP08/1_S1_L001_R1_001.fastq.gz,/scratch/gent/vo/000/gvo00027/projects/FAP/200325_TLP03_TLP08/1_S1_L001_R2_001.fastq.gz,3,/user/gent/446/vsc44685/ScratchVO_dir/ST_transcriptomics_local/test/barcodesTEST2
