@@ -113,23 +113,23 @@ process Decode_batch_4{
     tuple val(sample), file("*_demux_{R1,R2}.fastq.gz")
     
     script:
-    if ("$sample.type" == 42000)
+    if ("$sample.type" == 69000)
         """
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 0 --Seg_id 1/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 0 --Seg_id 1/8 &
             pid0=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 1 --Seg_id 2/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 1 --Seg_id 2/8 &
             pid1=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 2 --Seg_id 3/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 2 --Seg_id 3/8 &
             pid2=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 3 --Seg_id 4/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 3 --Seg_id 4/8 &
             pid3=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 0 --Seg_id 5/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 0 --Seg_id 5/8 &
             pid4=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 1 --Seg_id 6/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 1 --Seg_id 6/8 &
             pid5=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 2 --Seg_id 7/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 2 --Seg_id 7/8 &
             pid6=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N42} --out-prefix ${sample.sample} -C 3 --Seg_id 8/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N69} --out-prefix ${sample.sample} -C 3 --Seg_id 8/8 &
             pid7=\$!
             wait \$pid0
             wait \$pid1
@@ -142,23 +142,23 @@ process Decode_batch_4{
             cat *_R1.fastq.gz > ${sample.sample}_demux_R1.fastq.gz
             cat *_R2.fastq.gz > ${sample.sample}_demux_R2.fastq.gz
         """
-    else if ("$sample.type" == 21000)
+    else if ("$sample.type" == 34500)
         """
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 0 --Seg_id 1/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 0 --Seg_id 1/8 &
             pid0=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 1 --Seg_id 2/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 1 --Seg_id 2/8 &
             pid1=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 2 --Seg_id 3/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 2 --Seg_id 3/8 &
             pid2=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 3 --Seg_id 4/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 3 --Seg_id 4/8 &
             pid3=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 0 --Seg_id 5/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 0 --Seg_id 5/8 &
             pid4=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 1 --Seg_id 6/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 1 --Seg_id 6/8 &
             pid5=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 2 --Seg_id 7/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 2 --Seg_id 7/8 &
             pid6=\$!
-            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N21} --out-prefix ${sample.sample} -C 3 --Seg_id 8/8 &
+            Demux_batch.py -R1 ${pe_reads[0]} -R2 ${pe_reads[1]} -N ${sample.type} -M ${params.M} -B ${sample.bar} --Ntriage ${params.Ntriage} --Nthresh ${params.N34} --out-prefix ${sample.sample} -C 3 --Seg_id 8/8 &
             pid7=\$!
             wait \$pid0
             wait \$pid1

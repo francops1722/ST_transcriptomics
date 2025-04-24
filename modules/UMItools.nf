@@ -123,7 +123,7 @@ process UMI_count {
 process UMI_dedup_basic {
 
     container './containers/umi_tools.sif'
-    publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
+    publishDir "${params.outdir}/${index_step}_dedup", mode: 'copy', overwrite: true 
     tag "${sample}"
     
     input:
@@ -143,3 +143,49 @@ process UMI_dedup_basic {
     """
 
 }
+
+process UMI_dedup_transcipt {
+
+    container './containers/umi_tools.sif'
+    publishDir "${params.outdir}/${index_step}_dedup", mode: 'copy', overwrite: true 
+    tag "${sample}"
+    
+    input:
+    val (index_step)
+    tuple val(sample), path(bam_file), path(index)
+    //tuple val(sample), path(index)
+
+    output:
+    //path("*")
+    tuple val(sample), path('*.bam'), emit: dedup_files
+    path('logs_dedup/*.{txt,log}'), emit: logs
+
+    script:
+    """
+    mkdir logs_dedup
+    umi_tools dedup -I ${bam_file} -S ${sample}_transcript_dedup.bam --multimapping-detection-method=NH --output-stats=logs_dedup/${sample}_transcript_deduplicated.txt --log=logs_dedup/${sample}_transcript_deduplication.log
+    """
+
+}
+
+process Salmon_quant {
+    module 'Salmon/1.10.3-GCC-12.3.0'
+    publishDir "${params.outdir}/${index_step}_Salmon_quant", mode: 'copy', overwrite: true
+    tag "${sample}"
+
+    input:
+    val (index_step)
+    tuple val(sample), path(bam_file)
+    path(index)
+
+    output:
+    path('*quant'), emit: quant_folder
+
+    script:
+    """
+    mkdir logs_salmon
+    salmon quant -t ${index} -l A -a ${bam_file} -o ${sample}_quant --writeUnmappedNames
+    """
+}
+
+

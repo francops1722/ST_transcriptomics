@@ -15,7 +15,7 @@ pipeline for the analysis of Spatial Transcriptomics data generated from our cus
 `./build_containers.sh`
 4. Add all need paramters in the csvParams.config
 5. Load nextflow module
-`ml Nextflow/23.04.2`
+`ml Nextflow/24.10.2`
 7. Run pipeline
 `nextflow run ST_analysis.nf -c nextflow.config -with-dag ST_flowchart.png`
 

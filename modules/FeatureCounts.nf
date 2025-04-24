@@ -22,6 +22,30 @@ process FeatureCounts {
     """
 }
 
+process FeatureCounts_transcript_id {
+    container './containers/subread.sif'
+    label 'low'
+    publishDir "${params.outdir}/${index_step}_FCounts", mode: 'copy', overwrite: true   
+    tag "${sample}" 
+    
+    input:
+    val(index_step)
+    tuple val(sample), path(bam_file)
+    path gtf_file
+    //tuple val(sample), path(bam_file_or), path(index)
+    //tuple val(sample), path(index)
+
+    output:
+    path("*.count"), emit: counts
+    path("*.summary"), emit: logs
+
+    script:
+    """
+    featureCounts -s 1 -T 10 -t exon -g transcript_id -a ${gtf_file}  -o ${sample}_uniquev5.count ${bam_file} 
+    """
+}
+
+
 process FeatureCounts_BAM {
     container './containers/subread.sif'
     label 'low'
@@ -100,6 +124,24 @@ process merge_featureCounts {
     """
 }
 
+process merge_TPMs {
+    publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy'
+    label 'low'
+
+    input:
+    val (index_step)
+    file input_files
+
+    output:
+    file 'merged_salmon_TPM.txt'
+
+
+    script:
+    """
+    merge_salmon_quant.py -i $input_files
+    """
+}
+
 process merge_Counts {
     publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy'
     module 'PyTorch/1.12.0-foss-2022a-CUDA-11.7.0'
@@ -118,6 +160,8 @@ process merge_Counts {
     Counts_merge.py -i $input_files -Bar summary_barcodes.csv -Count gene_counts.csv
     """
 }
+
+
 
 process table_reads {
     publishDir "${params.outdir}/${index_step}_Counts_summary", mode: 'copy', overwrite: true 
