@@ -3,6 +3,7 @@
 include {Subsample_Seqtk_or as subs} from "../modules/Seqtk" 
 include {UMI_QSP_2 as UMI_ext} from "../modules/UMItools" 
 include {CUTADAPT_QSP_2 as trim} from "../modules/trimming"
+include {CUTADAPT_targeted as trim_primer} from "../modules/trimming" //to trim primers from r2
 include {Star_Align_QSP as star} from "../modules/Star" 
 include {sort_bam_QSP as sort_bam} from "../modules/Star" 
 // include {Star_Align_QSP_test as star} from "../modules/Star" //only for testing ffpe optimization
@@ -12,12 +13,8 @@ include {UMI_dedup_basic as dedup} from "../modules/UMItools"
 include {UMI_dedup_transcipt as dedup_trans} from "../modules/UMItools"
 include {FeatureCounts as FC} from "../modules/FeatureCounts"
 include {Salmon_quant as salmon} from "../modules/UMItools"
-//include {FeatureCounts_transcript_id as FC} from "../modules/FeatureCounts"  //to count at transcript level
 include {merge_featureCounts as merge_FC} from "../modules/FeatureCounts"
 include {merge_TPMs as merge_tpm} from "../modules/FeatureCounts"
-
-include {Alignment_QSP as align} from "../subworkflows/StarWF"
-
 
 workflow QSPLike_workflow {
     // set input data
@@ -37,9 +34,19 @@ workflow QSPLike_workflow {
     } 
     UMI_ext(index_step, pe_reads_ch)
     index_step += 1
-    trim(index_step, UMI_ext.out.fastq)  
+
+    if (params.primer_fasta) {
+        primer_fasta = file(params.primer_fasta)
+        trim_primer(index_step, UMI_ext.out.fastq, primer_fasta)
+        trim_ch = trim_primer.out
+    } else {
+        trim(index_step, UMI_ext.out.fastq)
+        trim_ch = trim.out
+    }
+    //trim(index_step, UMI_ext.out.fastq)
+    // trim(index_step, UMI_ext.out.fastq, primer_fasta)  //only for targeted sequencing
     index_step += 1
-    bam = star(index_step, trim.out, genome)
+    bam = star(index_step, trim_ch, genome)
     // // bam = star(index_step, pe_reads_ch, genome)
     sort_bam(index_step, star.out.transcript_bam)  
     bai = index(index_step, star.out.align_bam) 
@@ -52,6 +59,7 @@ workflow QSPLike_workflow {
     // // //dedup(index_step, align.out.bam_file)
     index_step += 1
     FC(index_step, dedup.out.dedup_files, gtf)
+    index_step += 1
     salmon(index_step, dedup_trans.out.dedup_files, transcript_fasta)
     index_step += 1
     input_files = FC.out.counts.collect()
