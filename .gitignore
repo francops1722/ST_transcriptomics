@@ -1,0 +1,4 @@
+./containers
+./test
+*.log
+./.nextflow

@@ -4,7 +4,7 @@ include {check_QC as QC_raw; check_QC as QC_raw_subs; check_QC as QC_trim2;check
 include {Subsample_Seqtk as subs} from "../modules/Seqtk" 
 include {CUTADAPT_oligodT as trim; CUTADAPT_Trim2 as trim2} from "../modules/trimming"
 include {UMI_extract as UMI_ext} from "../modules/UMItools"
-include {Decode_batch_4 as demux_batch} from "../modules/barcode_demux/main"
+include {Decode_batch as demux_batch} from "../modules/barcode_demux/main"
 include {Star_Align_R2v2 as star} from "../modules/Star"
 include {index_bam as index} from "../modules/Star"
 include {FeatureCounts_BAM as FeatureCounts} from "../modules/FeatureCounts"

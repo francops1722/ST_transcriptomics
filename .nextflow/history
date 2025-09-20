@@ -1,0 +1,10 @@
+2025-09-20 20:01:51	-	nostalgic_babbage	-	13c694a976fa43fe7f21da118109676c	ea03b7de-5efe-459a-ab37-8bb65c3afb00	nextflow run main.nf
+2025-09-20 20:09:59	4.4s	disturbed_joliot	ERR	13c694a976fa43fe7f21da118109676c	a46b1617-ad03-4607-ae11-bcb29051f76d	nextflow run main.nf
+2025-09-20 20:15:23	1m 21s	lonely_picasso	ERR	13c694a976fa43fe7f21da118109676c	ed12b0f6-2c02-43c2-8d90-11548f5ba53f	nextflow run main.nf
+2025-09-20 20:21:40	40.9s	loving_cantor	ERR	13c694a976fa43fe7f21da118109676c	7ad4feaf-dff6-4af2-bc22-297eabded19a	nextflow run main.nf
+2025-09-20 20:51:37	1m 41s	drunk_shannon	ERR	13c694a976fa43fe7f21da118109676c	301183f9-4658-4000-8dfb-7617b650af7b	nextflow run main.nf
+2025-09-20 21:08:06	-	ecstatic_babbage	-	13c694a976fa43fe7f21da118109676c	301183f9-4658-4000-8dfb-7617b650af7b	nextflow run main.nf -resume
+2025-09-20 21:09:00	34.6s	fervent_lagrange	ERR	13c694a976fa43fe7f21da118109676c	301183f9-4658-4000-8dfb-7617b650af7b	nextflow run main.nf -resume
+2025-09-20 21:10:05	1m 2s	friendly_mcnulty	ERR	13c694a976fa43fe7f21da118109676c	301183f9-4658-4000-8dfb-7617b650af7b	nextflow run main.nf -resume
+2025-09-20 21:12:20	1m 18s	sharp_franklin	ERR	13c694a976fa43fe7f21da118109676c	86adef26-a9d0-4c0a-b8ae-db2ccbe7ab98	nextflow run main.nf
+2025-09-20 21:16:20	1m 57s	serene_swirles	OK	13c694a976fa43fe7f21da118109676c	2e9d7dd7-4342-469f-b0a8-2bbd0e6232ad	nextflow run main.nf
