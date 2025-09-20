@@ -1,4 +1,36 @@
-./containers
-./test
+# Nextflow files
+.nextflow*
+work/
+results/
 *.log
-./.nextflow
+
+# Container files (large binary files)
+containers/
+*.sif
+*.img
+
+# Test data and outputs
+test/
+data/
+output/
+
+# OS and editor files
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Reports and traces
+report.html
+timeline.html
+trace.txt
+dag.dot
+
+# Cache directories
+.apptainer/
+.singularity/
