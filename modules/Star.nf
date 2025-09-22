@@ -4,7 +4,7 @@ process Star_Align_R2 {
     
     container './containers/star.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
-    label "med"
+    label "high"
     tag "${sample}"
     
     
@@ -28,7 +28,7 @@ process Star_Align_R2v2 {
     container './containers/star.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
     tag "${sample.sample}"
-    label "med"
+    label "high"
     
     input:
     val (index_step)
@@ -50,7 +50,7 @@ process Star_Align_QSP {
     container './containers/star.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
     tag "${sample}"
-    label "med"
+    label "high"
     
     input:
     val(index_step)
@@ -73,7 +73,7 @@ process Star_Align_QSP_test {
     container './containers/star.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true 
     tag "${sample}"
-    label "med"
+    label "high"
     
     input:
     val(index_step)
@@ -119,6 +119,7 @@ process index_bam {
     container './containers/samtools.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true
     tag "${sample.sample}"
+    label "low"
     
     input:
     val (index_step)
@@ -137,6 +138,7 @@ process index_bam_QSP {
     container './containers/samtools.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true
     tag "${sample}"
+    label "low"
     
     input:
     val (index_step)
@@ -157,6 +159,7 @@ process sort_bam {
     container './containers/samtools.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true
     tag "${sample.sample}"
+    label "low"
     
     input:
     val (index_step)
@@ -177,6 +180,7 @@ process sort_bam_QSP {
     container './containers/samtools.sif'
     publishDir "${params.outdir}/${index_step}_Star", mode: 'copy', overwrite: true
     tag "${sample}"
+    label "low"
     
     input:
     val (index_step)

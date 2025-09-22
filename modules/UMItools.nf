@@ -34,6 +34,7 @@ process UMI_QSP {
     container './containers/umi_tools.sif'
     publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
+    label 'low'
     
     input:
     val (index_step)
@@ -56,6 +57,7 @@ process UMI_QSP_2 {
     container './containers/umi_tools.sif'
     publishDir "${params.outdir}/${index_step}_UMI_extracted", mode: 'copy', overwrite: true 
     tag "${sample}"
+    label 'low'
     
     input:
     val (index_step)
@@ -77,6 +79,7 @@ process UMI_count {
     container './containers/umi_tools.sif'
     publishDir "${params.outdir}/${index_step}_UMI_Counts", mode: 'copy', overwrite: true 
     tag "${sample.sample}"
+    label 'high'
     
     input:
     val (index_step)
@@ -124,6 +127,7 @@ process UMI_dedup_basic {
 
     container './containers/umi_tools.sif'
     publishDir "${params.outdir}/${index_step}_dedup", mode: 'copy', overwrite: true 
+    label 'high'
     tag "${sample}"
     
     input:

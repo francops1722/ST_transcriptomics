@@ -1,10 +1,10 @@
 #!/bin/bash
 #PBS -N ST_job
-#PBS -l nodes=1:ppn=1:gpus=1
-#PBS -l walltime=10:00:00
-#PBS -l mem=64gb
+#PBS -l nodes=1:ppn=4
+#PBS -l walltime=02:00:00
+#PBS -l mem=100gb
 
 cd /user/gent/446/vsc44685/ScratchVO_dir/ST_transcriptomics
 
-ml Nextflow/24.10.2
+ml  Nextflow/25.04.4
 nextflow run main.nf #-resume #-with-report report_test.html

@@ -8,13 +8,13 @@ include {Star_Align_QSP as star} from "../modules/Star"
 include {sort_bam_QSP as sort_bam} from "../modules/Star" 
 // include {Star_Align_QSP_test as star} from "../modules/Star" //only for testing ffpe optimization
 include {index_bam_QSP as index} from "../modules/Star"
-include {index_bam_QSP as index_trans} from "../modules/Star"
+// include {index_bam_QSP as index_trans} from "../modules/Star"
 include {UMI_dedup_basic as dedup} from "../modules/UMItools"
-include {UMI_dedup_transcipt as dedup_trans} from "../modules/UMItools"
+// include {UMI_dedup_transcipt as dedup_trans} from "../modules/UMItools"
 include {FeatureCounts as FC} from "../modules/FeatureCounts"
-include {Salmon_quant as salmon} from "../modules/UMItools"
+// include {Salmon_quant as salmon} from "../modules/UMItools"
 include {merge_featureCounts as merge_FC} from "../modules/FeatureCounts"
-include {merge_TPMs as merge_tpm} from "../modules/FeatureCounts"
+// include {merge_TPMs as merge_tpm} from "../modules/FeatureCounts"
 
 workflow QSPLike_workflow {
     // set input data

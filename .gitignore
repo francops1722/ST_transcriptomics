@@ -1,5 +1,6 @@
 # Nextflow files
 .nextflow*
+.nextflow/history/
 work/
 results/
 *.log
