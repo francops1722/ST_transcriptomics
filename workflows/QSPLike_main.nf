@@ -19,12 +19,8 @@ include {merge_TPMs as merge_tpm} from "../modules/FeatureCounts"
 workflow QSPLike_workflow {
     // set input data
     pe_reads_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
-    // pe_reads_ch.view()
-    // pe_reads_ch = Channel.fromFilePairs( params.reads , size:-1 , checkIfExists:true) { file -> file.name.replaceAll(".fastq.gz", '') }
-    // pe_reads_ch.view()
     genome = file(params.genome)
     gtf = file(params.gtf_file)
-    transcript_fasta = file(params.transcript_fasta)
     index_step = 0
     // is subsampling enabled?
     if (params.Subs) {
@@ -43,28 +39,26 @@ workflow QSPLike_workflow {
         trim(index_step, UMI_ext.out.fastq)
         trim_ch = trim.out
     }
-    //trim(index_step, UMI_ext.out.fastq)
-    // trim(index_step, UMI_ext.out.fastq, primer_fasta)  //only for targeted sequencing
+
     index_step += 1
     bam = star(index_step, trim_ch, genome)
-    // // bam = star(index_step, pe_reads_ch, genome)
-    sort_bam(index_step, star.out.transcript_bam)  
+    // sort_bam(index_step, star.out.align_bam)  
     bai = index(index_step, star.out.align_bam) 
-    bai_trans = index_trans(index_step, sort_bam.out.sorted_bam) 
+    //bai_trans = index_trans(index_step, sort_bam.out.sorted_bam) 
     align_ch = star.out.align_bam.join(bai)
-    align_ch_trans = sort_bam.out.sorted_bam.join(bai_trans)
+    // align_ch_trans = sort_bam.out.sorted_bam.join(bai_trans)
     index_step += 1
     dedup(index_step, align_ch)
-    dedup_trans(index_step, align_ch_trans)
+    // dedup_trans(index_step, align_ch_trans)
     // // //dedup(index_step, align.out.bam_file)
     index_step += 1
     FC(index_step, dedup.out.dedup_files, gtf)
-    index_step += 1
-    salmon(index_step, dedup_trans.out.dedup_files, transcript_fasta)
+    // index_step += 1
+    // salmon(index_step, dedup_trans.out.dedup_files, transcript_fasta)
     index_step += 1
     input_files = FC.out.counts.collect()
-    input_salmon_files = salmon.out.quant_folder.collect()
-    input_salmon_files.view()
+    // input_salmon_files = salmon.out.quant_folder.collect()
+    // input_salmon_files.view()
     merge_FC(index_step, input_files)
-    merge_tpm(index_step, input_salmon_files)
+    // merge_tpm(index_step, input_salmon_files)
 }
